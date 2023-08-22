@@ -68,9 +68,10 @@ namespace Api.MessageLib.Services
 
             await _messageCols.InsertOneAsync(document);
 
-            return new Response{
-                StatusCode=StatusCodes.Status200OK,
-                Message=resMsg
+            return new Response
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Message = resMsg
             };
         }
 
@@ -80,14 +81,24 @@ namespace Api.MessageLib.Services
             //     JsonConvert.SerializeObject(model)
             // );
 
-            await _messageCols.ReplaceOneAsync(x=>x["_id"] == document["_id"], document);
+            await _messageCols.ReplaceOneAsync(x => x["_id"] == document["_id"], document);
             string resMessage = "Successfully replace message";
             _logger.LogInformation(resMessage);
 
-            return new Response{
-                StatusCode=StatusCodes.Status200OK,
-                Message=resMessage
+            return new Response
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Message = resMessage
             };
+        }
+
+        public IEnumerable<MessageModel> FindMessageByWebhookId(string webhookId)
+        {
+            var builder = Builders<BsonDocument>.Filter.Eq("message_object.events.webhookEventId", webhookId);
+            return _messageCols
+                .Find(builder)
+                .As<MessageModel>()
+                .ToEnumerable();
         }
     }
 }
